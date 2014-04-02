@@ -1,0 +1,109 @@
+* Creating a new rails app
+ $rails new blog
+
+* Create a controller - Controller is to receive specific request for the application. Routing decides which controller receives which request.different route can be served by different action in the controller.
+
+$ rails g controller welcome index
+
+the above command will create welcome controller with index action.
+
+*router.rb - this is routing file which holds entries for special DSL and tells Rails how to connect incoming requests to controller and action.
+
+in routes.rb  ==> root "welcome#index"
+
+- tells rails to load this as home page.
+
+* rails provide resource method which provides standard REST resource 
+
+--> resource :posts
+ posts GET    /posts(.:format)          posts#index
+          POST   /posts(.:format)          posts#create
+ new_post GET    /posts/new(.:format)      posts#new
+edit_post GET    /posts/:id/edit(.:format) posts#edit
+     post GET    /posts/:id(.:format)      posts#show
+          PUT    /posts/:id(.:format)      posts#update
+          DELETE /posts/:id(.:format)      posts#destroy
+
+* Now we will see how to create a blog form 
+
+ - create an empty controller 
+ 	$ rails g controller posts
+ - when we try to open localhost:3000/posts/new , we will be getting 'Unknown Action' error says action is missing in controller.
+
+ def new
+
+ end
+
+ - when we again try to run the same url now it says 'Template missing'
+ 	- create a new view file under views/posts/new.html.erb
+ 	$<h1> Hello RAils</h1>
+
+ 	- to create form use 
+
+
+<%= form_for :post do |f| %>
+<p>
+	<%=f.label :title %>
+	<%=f.text_field :title %>
+</p>
+<p>
+	<%=f.label :text %>
+	<%= f.text_area :text %>
+</p>
+<p>
+	<%= f.submit %>
+</p>
+
+<% end %>
+
+  - inspect the form action will be 'posts/new' but we need to reidrect to page where all posts are displayed that is done using 'url' option
+
+  	$<%= form_for :post,url: posts_path do |f| %>
+
+  	- the above will change the action to /posts
+
+  + when you c=put some data on the form and click submt button ,it will get redirected to /posts
+  	- Unknown create action error occurs
+
+  	- create a create method in controller and add these in controller.
+
+  	
+	def create
+		render text: params[:post].inspect
+	end
+
+    - above will render data in hash format
+
+
++ CREATE A MODEL:
+  -a model named as LETTER is  created.
+
+  $ rails g model Letter title:string text:text
+
+  - run the migration to create a database and tables.
+
+    $ rake db:migrate
+
+  - if you want to migrate in production environment then use the command.
+
+    $ rake db:migrate RAILS_ENV=production
+    
+  - since security is higlighted in rails they have asked what do be included while posting the form
+
+   private
+
+  def post_params
+    params.require(:post).permit(:title,:text)
+  end
+
+  - define show method as form is submited we are redirecting to show action
+
+    def show 
+    @post = Letter.find(params[:id])
+  end
+
+  - list all the post in index.html using index action 
+
+     def index
+    @posts = Letter.all
+  end
